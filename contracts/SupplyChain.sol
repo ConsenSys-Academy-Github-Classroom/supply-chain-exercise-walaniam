@@ -125,9 +125,11 @@ contract SupplyChain {
     public
     forSale(sku)
     paidEnough(sku)
+    checkValue(sku)
   {
     items[sku].state = State.Sold;
     items[sku].buyer = payable(msg.sender);
+    items[sku].seller.transfer(items[sku].price);
     emit LogSold(sku);
   }
 
@@ -139,6 +141,7 @@ contract SupplyChain {
   function shipItem(uint sku)
     public
     sold(sku)
+    verifyCaller(items[sku].seller)
   {
     items[sku].state = State.Shipped;
     emit LogShipped(sku);
@@ -150,6 +153,7 @@ contract SupplyChain {
   // 2. Change the state of the item to received. 
   // 3. Call the event associated with this function!
   function receiveItem(uint sku)
+    payable
     public
     shipped(sku)
     verifyCaller(items[sku].buyer)
